@@ -252,13 +252,46 @@ function render(){
   el.gold.textContent = state.gold + ' 🪙';
 
   el.playerLevel.textContent = state.player.level;
-  el.playerAtk.textContent = statAtk(state.player); el.playerDef.textContent = statDef(state.player);
-  el.playerCrit.textContent = statCrit(state.player) + '%'; el.playerEvasion.textContent = statEvasion(state.player) + '%';
+  
+  // CORREÇÃO: Removemos a tentativa de atualizar Atk/Def/Crit aqui,
+  // pois eles agora vivem apenas no menu de Perfil.
+  
   el.playerHpMax.textContent = state.player.maxHp;
   atualizarBarra(el.playerHpFill, el.playerHpCurrent, state.player.hp, state.player.maxHp);
   el.playerXpNext.textContent = state.player.xpToNext; el.playerXpCurrent.textContent = state.player.xp;
   el.playerXpFill.style.width = Math.min(100, (state.player.xp / state.player.xpToNext) * 100) + '%';
   renderStatusTags(el.playerStatusTags, state.player);
+
+  const eq = state.player.equipment;
+  el.equipWeapon.textContent = eq.weapon ? eq.weapon.name : '—'; el.equipArmor.textContent = eq.armor ? eq.armor.name : '—';
+  el.equipRing.textContent = eq.ring ? eq.ring.name : '—'; el.equipRelic.textContent = eq.relic ? eq.relic.name : '—';
+
+  if(state.enemy) {
+    el.enemyName.textContent = state.enemy.name; el.enemyPortrait.textContent = state.enemy.icon;
+    el.enemyLevel.textContent = state.enemy.level; el.enemyHpMax.textContent = state.enemy.maxHp;
+    el.enemyBossBadge.classList.toggle('show', state.enemy.isBoss);
+    atualizarBarra(el.enemyHpFill, el.enemyHpCurrent, state.enemy.hp, state.enemy.maxHp);
+    renderStatusTags(el.enemyStatusTags, state.enemy);
+    el.enemyAbilityName.textContent = `${state.enemy.ability} — ${state.enemy.abilityDesc}`;
+    
+    if (state.enemy.isBoss && state.enemy.hp > 0) {
+      el.enemyPhaseLine.style.display = 'block';
+      let hpPct = state.enemy.hp / state.enemy.maxHp;
+      el.enemyFrame.classList.remove('wounded', 'enraged');
+      if (hpPct <= 0.3) { el.enemyFrame.classList.add('enraged'); el.enemyPhaseName.textContent = 'Fúria Final'; } 
+      else if (hpPct <= 0.7) { el.enemyFrame.classList.add('wounded'); el.enemyPhaseName.textContent = 'Ferido'; } 
+      else { el.enemyPhaseName.textContent = 'Normal'; }
+    } else {
+      el.enemyPhaseLine.style.display = 'none'; el.enemyFrame.classList.remove('wounded', 'enraged');
+    }
+  }
+
+  el.playerFrame.classList.toggle('defending', state.player.defending);
+  el.btnSpecial.disabled = state.turnLocked || state.specialCooldown > 0;
+  el.specialSub.textContent = state.specialCooldown > 0 ? `recarregando (${state.specialCooldown})` : '150% dano + sangramento';
+  el.btnAttack.disabled = state.turnLocked; el.btnDefend.disabled = state.turnLocked;
+  el.btnPotion.disabled = state.turnLocked || state.player.potions <= 0; el.potionSub.textContent = `${state.player.potions} disponíveis`;
+}
 
   const eq = state.player.equipment;
   el.equipWeapon.textContent = eq.weapon ? eq.weapon.name : '—'; el.equipArmor.textContent = eq.armor ? eq.armor.name : '—';
