@@ -501,11 +501,16 @@ el.btnPotion.onclick = () => { if (!state.turnLocked && state.player.potions > 0
 
 el.btnRestart.onclick = () => {
   el.overlay.classList.remove('show');
+  
+  // CORREÇÃO: Remove a animação de morte para o card voltar a aparecer
+  el.playerFrame.classList.remove('defeated'); 
+  
   // Zera progresso atual mas mantém recordes e status vitais
   const best = state.bestWave; const stats = state.stats;
   state = novoEstado(currentUser.uid, currentUser);
   state.bestWave = best; state.stats = stats; state.stats.totalRuns++;
   salvarImediato();
+  
   el.log.innerHTML = ''; logMsg('A arena aguarda. As tochas vermelhas se acendem.', 'system');
   iniciarBatalha(1);
 };
