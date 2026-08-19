@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arena de Sombras — RPG PvE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="grain"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">⚔</span>
+    <h1>ARENA DE SOMBRAS</h1>
+  </div>
+  
+  <div class="run-status">
+    <div class="run-item">
+      <span class="run-label">Onda</span>
+      <span class="run-value" id="wave-number">01</span>
+    </div>
+    <div class="run-item">
+      <span class="run-label">Recorde</span>
+      <span class="run-value ghost" id="wave-record">01</span>
+    </div>
+    <div class="run-item">
+      <span class="run-label">Fragmentos</span>
+      <span class="run-value gold" id="gold-amount">0 🪙</span>
+    </div>
+  </div>
+
+  <div class="topbar-actions">
+    <!-- Novo: Perfil rápido do usuário logado -->
+    <div class="user-auth-info" id="user-auth-info" style="display:none;">
+      <img id="user-avatar" src="" alt="Avatar" class="user-avatar" referrerpolicy="no-referrer">
+      <span id="user-firstname" class="user-firstname">Jogador</span>
+    </div>
+
+    <button class="icon-btn" id="btn-profile" title="Perfil e Inventário">👤</button>
+    <button class="icon-btn" id="btn-sound" title="Alternar Som/Música">🔊</button>
+    <button class="icon-btn" id="btn-logout" title="Sair da Conta">🚪</button>
+  </div>
+</header>
+
+<main class="arena" id="arena-main" style="display: none;">
+  <!-- O conteúdo da arena permanece o mesmo -->
+  <section class="combatant player" aria-label="Seu personagem">
+    <div class="combatant-frame">
+      <div class="portrait-wrap">
+        <div class="portrait player-portrait" id="player-portrait">🗡</div>
+      </div>
+      <div class="combatant-info">
+        <div class="name-row">
+          <h2 id="player-name">Você</h2>
+          <span class="lvl-badge">Nv. <span id="player-level">1</span></span>
+        </div>
+        <div class="hp-bar-shell">
+          <div class="hp-bar">
+            <div class="hp-fill" id="player-hp-fill"></div>
+          </div>
+          <span class="hp-text"><span id="player-hp-current">100</span> / <span id="player-hp-max">100</span> PV</span>
+        </div>
+        <div class="xp-bar-shell">
+          <div class="xp-bar"><div class="xp-fill" id="player-xp-fill"></div></div>
+          <span class="xp-text">XP <span id="player-xp-current">0</span>/<span id="player-xp-next">60</span></span>
+        </div>
+        <div class="status-tags" id="player-status-tags"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="vs-divider" aria-hidden="true"><span>VS</span></div>
+
+  <section class="combatant enemy" aria-label="Inimigo">
+    <div class="combatant-frame">
+      <div class="portrait-wrap">
+        <div class="portrait enemy-portrait" id="enemy-portrait">👹</div>
+      </div>
+      <div class="combatant-info">
+        <div class="name-row">
+          <h2 id="enemy-name">Goblin Batedor</h2>
+          <span class="boss-badge" id="enemy-boss-badge">👑 Chefe</span>
+          <span class="lvl-badge">Nv. <span id="enemy-level">1</span></span>
+        </div>
+        <div class="hp-bar-shell">
+          <div class="hp-bar">
+            <div class="hp-fill enemy-fill" id="enemy-hp-fill"></div>
+          </div>
+          <span class="hp-text"><span id="enemy-hp-current">60</span> / <span id="enemy-hp-max">60</span> PV</span>
+        </div>
+        
+        <div class="phase-line" id="enemy-phase-line" style="display:none;">
+          Fase: <span id="enemy-phase-name">Normal</span>
+        </div>
+
+        <div class="status-tags" id="enemy-status-tags"></div>
+        <div class="ability-line">Habilidade: <span id="enemy-ability-name">—</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="actions" aria-label="Ações de combate" id="arena-actions" style="display: none;">
+  <button id="btn-attack" class="action-btn attack" type="button">
+    <span class="btn-title">Atacar</span>
+    <span class="btn-sub">dano direto</span>
+  </button>
+  <button id="btn-defend" class="action-btn defend" type="button">
+    <span class="btn-title">Defender</span>
+    <span class="btn-sub">reduz o próximo dano</span>
+  </button>
+  <button id="btn-special" class="action-btn special" type="button">
+    <span class="btn-title">Corte Profundo</span>
+    <span class="btn-sub" id="special-sub">150% dano + sangramento</span>
+  </button>
+  <button id="btn-potion" class="action-btn potion" type="button">
+    <span class="btn-title">Poção de Vida</span>
+    <span class="btn-sub" id="potion-sub">0 disponíveis</span>
+  </button>
+</section>
+
+<section class="combat-log-wrap" id="arena-log" style="display: none;">
+  <div class="combat-log-header">
+    <span>Registro de Combate</span>
+    <span class="log-line" aria-hidden="true"></span>
+  </div>
+  <div class="combat-log" id="combat-log"></div>
+</section>
+
+<!-- Tela de Login -->
+<div class="overlay show" id="login-overlay">
+  <div class="overlay-box login-box" style="max-width: 400px;">
+    <p class="overlay-eyebrow">Autenticação</p>
+    <h2>ARENA DE SOMBRAS</h2>
+    <p>Entre para continuar sua jornada e salvar seu progresso nas sombras.</p>
+    <button id="btn-login-google" class="action-btn special" type="button" style="width: 100%; margin-top: 15px;">
+      <span class="btn-title">🌐 Entrar com Google</span>
+      <span class="btn-sub">sincronização na nuvem</span>
+    </button>
+  </div>
+</div>
+
+<!-- Tela de Loading -->
+<div class="overlay" id="loading-overlay" style="z-index: 200;">
+  <div class="overlay-box" style="background: transparent; border: none; box-shadow: none;">
+    <h2 style="color: var(--blood-500); animation: pulse-low 1s infinite;">CARREGANDO JORNADA...</h2>
+  </div>
+</div>
+
+<!-- Notificação de Erro de Rede (Toast) -->
+<div id="toast-notification" class="toast-notification"></div>
+
+<!-- Tela de Perfil e Inventário -->
+<div class="overlay" id="profile-overlay">
+  <div class="overlay-box profile-box" style="max-width: 500px; text-align: left;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+      <img id="profile-avatar" src="" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--steel-600);">
+      <div>
+        <h2 id="profile-name" style="margin: 0; font-size: 1.2rem;">Nome</h2>
+        <p class="overlay-eyebrow" style="margin: 0;">Nível <span id="profile-level-badge">1</span></p>
+      </div>
+    </div>
+    
+    <div class="stats-row" style="margin-bottom: 20px; flex-wrap: wrap;">
+      <div class="stat"><span class="stat-label">Ataque</span><span class="stat-value" id="profile-atk">14</span></div>
+      <div class="stat"><span class="stat-label">Defesa</span><span class="stat-value" id="profile-def">5</span></div>
+      <div class="stat"><span class="stat-label">Crítico</span><span class="stat-value" id="profile-crit">8%</span></div>
+      <div class="stat"><span class="stat-label">Esquiva</span><span class="stat-value" id="profile-evasion">6%</span></div>
+    </div>
+    
+    <p class="overlay-eyebrow">Equipamentos</p>
+    <div class="equipment-row" id="player-equipment" style="margin-bottom: 20px;">
+      <span class="equip-slot" title="Arma"><span class="equip-icon">🗡️</span><span id="equip-weapon">—</span></span>
+      <span class="equip-slot" title="Armadura"><span class="equip-icon">🛡️</span><span id="equip-armor">—</span></span>
+      <span class="equip-slot" title="Anel"><span class="equip-icon">💍</span><span id="equip-ring">—</span></span>
+      <span class="equip-slot" title="Relíquia"><span class="equip-icon">🔮</span><span id="equip-relic">—</span></span>
+    </div>
+
+    <p class="overlay-eyebrow">Estatísticas de Carreira</p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--bone-dim); margin-bottom: 20px;">
+      <div>Inimigos Derrotados: <span id="stat-enemies" style="color: var(--bone);">0</span></div>
+      <div>Chefes Derrotados: <span id="stat-bosses" style="color: var(--bone);">0</span></div>
+      <div>Dano Causado: <span id="stat-dmg-dealt" style="color: var(--bone);">0</span></div>
+      <div>Dano Sofrido: <span id="stat-dmg-taken" style="color: var(--bone);">0</span></div>
+      <div>Acertos Críticos: <span id="stat-crits" style="color: var(--bone);">0</span></div>
+      <div>Mortes: <span id="stat-deaths" style="color: var(--bone);">0</span></div>
+    </div>
+
+    <p style="font-size:0.75rem; color:var(--bone-dim); text-align: center;">Progresso salvo na nuvem ☁️</p>
+    <button id="btn-close-profile" class="action-btn defend" type="button" style="width: 100%;">
+      <span class="btn-title">Fechar</span>
+    </button>
+  </div>
+</div>
+
+<!-- (Restante dos modais de mapa, loja, levelup e end-game permanecem iguais) -->
+<!-- Mapa de rotas -->
+<div class="overlay" id="map-overlay">
+  <div class="overlay-box map-box">
+    <p class="overlay-eyebrow">Escolha seu Caminho</p>
+    <h2>Rumo à Onda <span id="map-wave-label">2</span></h2>
+    <div class="map-choices" id="map-choices"></div>
+  </div>
+</div>
+
+<!-- Loja -->
+<div class="overlay" id="shop-overlay">
+  <div class="overlay-box shop-box">
+    <p class="overlay-eyebrow">Mercador Errante</p>
+    <h2>Loja</h2>
+    <p class="shop-gold">Fragmentos: <span id="shop-gold-value">0</span> 🪙</p>
+    <div class="shop-items" id="shop-items"></div>
+    <button id="btn-shop-continue" class="action-btn attack" type="button" style="width:100%;">
+      <span class="btn-title">Continuar Jornada</span>
+      <span class="btn-sub">seguir para a próxima onda</span>
+    </button>
+  </div>
+</div>
+
+<!-- Subir de nível -->
+<div class="overlay" id="levelup-overlay">
+  <div class="overlay-box levelup-box">
+    <p class="overlay-eyebrow">Você subiu de nível!</p>
+    <h2>Nível <span id="levelup-level">2</span></h2>
+    <p>Escolha uma melhoria para seu personagem:</p>
+    <div class="levelup-choices" id="levelup-choices"></div>
+  </div>
+</div>
+
+<!-- Fim de combate -->
+<div class="overlay" id="end-overlay">
+  <div class="overlay-box">
+    <p class="overlay-eyebrow" id="end-eyebrow">Fim de Combate</p>
+    <h2 id="end-title">Vitória</h2>
+    <p id="end-message">Você derrotou o inimigo.</p>
+    <button id="btn-restart" class="action-btn attack" type="button" style="width:100%;">
+      <span class="btn-title">Ressurgir (Nova Run)</span>
+      <span class="btn-sub">voltar à onda 1</span>
+    </button>
+  </div>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
