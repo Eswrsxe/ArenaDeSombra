@@ -10,22 +10,25 @@ const audioCtx = new AudioContext();
 let soundEnabled = true;
 
 function playSfx(type) {
-  if (!soundEnabled) return;
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-  osc.connect(gain); gain.connect(audioCtx.destination);
-  const now = audioCtx.currentTime;
-  
-  if (type === 'hit') { osc.type = 'triangle'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.1); gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); }
-  else if (type === 'crit') { osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.2); gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2); osc.start(now); osc.stop(now + 0.2); }
-  else if (type === 'heal') { osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.linearRampToValueAtTime(600, now + 0.2); gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.2, now + 0.1); gain.gain.linearRampToValueAtTime(0, now + 0.3); osc.start(now); osc.stop(now + 0.3); }
-  else if (type === 'death') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(20, now + 0.6); gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0, now + 0.6); osc.start(now); osc.stop(now + 0.6); }
-  else if (type === 'levelup') { osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.setValueAtTime(400, now + 0.1); osc.frequency.setValueAtTime(500, now + 0.2); gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.4); osc.start(now); osc.stop(now + 0.4); }
+  try {
+    if (!soundEnabled) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    
+    if (type === 'hit') { osc.type = 'triangle'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.1); gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); }
+    else if (type === 'crit') { osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(80, now + 0.2); gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2); osc.start(now); osc.stop(now + 0.2); }
+    else if (type === 'heal') { osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.linearRampToValueAtTime(600, now + 0.2); gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.2, now + 0.1); gain.gain.linearRampToValueAtTime(0, now + 0.3); osc.start(now); osc.stop(now + 0.3); }
+    else if (type === 'death') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(20, now + 0.6); gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.6); osc.start(now); osc.stop(now + 0.6); }
+    else if (type === 'levelup') { osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.setValueAtTime(400, now + 0.1); osc.frequency.setValueAtTime(500, now + 0.2); gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.4); osc.start(now); osc.stop(now + 0.4); }
+  } catch (e) {
+    console.warn("Áudio ignorado pelo navegador para evitar travamentos.");
+  }
 }
 
 // ---------- Referências do DOM ----------
 const el = {
-  // Autenticação & Layout
   loginOverlay: document.getElementById('login-overlay'),
   loadingOverlay: document.getElementById('loading-overlay'),
   btnLoginGoogle: document.getElementById('btn-login-google'),
@@ -39,7 +42,6 @@ const el = {
   arenaActions: document.getElementById('arena-actions'),
   arenaLog: document.getElementById('arena-log'),
 
-  // Elementos do Perfil
   profileOverlay: document.getElementById('profile-overlay'),
   btnCloseProfile: document.getElementById('btn-close-profile'),
   profileAvatar: document.getElementById('profile-avatar'),
@@ -50,7 +52,6 @@ const el = {
   profileCrit: document.getElementById('profile-crit'),
   profileEvasion: document.getElementById('profile-evasion'),
   
-  // Stats do perfil
   statEnemies: document.getElementById('stat-enemies'),
   statBosses: document.getElementById('stat-bosses'),
   statDmgDealt: document.getElementById('stat-dmg-dealt'),
@@ -71,10 +72,6 @@ const el = {
   playerXpFill: document.getElementById('player-xp-fill'),
   playerXpCurrent: document.getElementById('player-xp-current'),
   playerXpNext: document.getElementById('player-xp-next'),
-  playerAtk: document.getElementById('player-atk'),
-  playerDef: document.getElementById('player-def'),
-  playerCrit: document.getElementById('player-crit'),
-  playerEvasion: document.getElementById('player-evasion'),
   playerStatusTags: document.getElementById('player-status-tags'),
   equipWeapon: document.getElementById('equip-weapon'),
   equipArmor: document.getElementById('equip-armor'),
@@ -89,8 +86,6 @@ const el = {
   enemyHpFill: document.getElementById('enemy-hp-fill'),
   enemyHpCurrent: document.getElementById('enemy-hp-current'),
   enemyHpMax: document.getElementById('enemy-hp-max'),
-  enemyAtk: document.getElementById('enemy-atk'),
-  enemyDef: document.getElementById('enemy-def'),
   enemyAbilityName: document.getElementById('enemy-ability-name'),
   enemyStatusTags: document.getElementById('enemy-status-tags'),
   enemyPhaseLine: document.getElementById('enemy-phase-line'),
@@ -187,7 +182,6 @@ function novoEstado(uid, user){
   };
 }
 
-// Sistema de Auto-Save Debounced (Evita spam de requisições)
 function agendarSave() {
   if (!currentUser || !state) return;
   if (saveTimeout) clearTimeout(saveTimeout);
@@ -195,7 +189,7 @@ function agendarSave() {
     state.profile.lastLogin = new Date().toISOString();
     const success = await savePlayerData(currentUser.uid, state);
     if (!success) mostrarToast("⚠ Sem conexão. Progresso mantido localmente.");
-  }, 2000); // Salva após 2s sem alterações
+  }, 2000); 
 }
 
 function salvarImediato() {
@@ -252,9 +246,6 @@ function render(){
   el.gold.textContent = state.gold + ' 🪙';
 
   el.playerLevel.textContent = state.player.level;
-  
-  // CORREÇÃO: Removemos a tentativa de atualizar Atk/Def/Crit aqui,
-  // pois eles agora vivem apenas no menu de Perfil.
   
   el.playerHpMax.textContent = state.player.maxHp;
   atualizarBarra(el.playerHpFill, el.playerHpCurrent, state.player.hp, state.player.maxHp);
@@ -322,25 +313,6 @@ function aplicarDanoJogador(dano, { evasavel = true } = {}){
   logMsg(`${state.enemy.name} causa ${finalDmg} dano.`, 'hit-player');
 }
 
-function playerAttack(){
-  lunge(el.playerFrame, 'right');
-  const { dano, isCrit } = calcularDano(statAtk(state.player), state.enemy.def, { critChance: statCrit(state.player) });
-  setTimeout(() => aplicarDanoNoInimigo(dano, isCrit), 150);
-  logMsg(`Ataque causa ${dano} de dano.${isCrit ? ' CRÍTICO!' : ''}`, isCrit ? 'crit' : 'hit-enemy');
-  agendarSave();
-}
-
-function playerSpecial(){
-  lunge(el.playerFrame, 'right');
-  const { dano, isCrit } = calcularDano(statAtk(state.player), state.enemy.def, { critChance: statCrit(state.player), mult: 1.5 });
-  setTimeout(() => {
-    aplicarDanoNoInimigo(dano, isCrit);
-    state.enemy.statusEffects.bleed = { turns: 3, dmg: Math.max(2, Math.round(statAtk(state.player) * 0.22)) };
-    logMsg(`Corte Profundo causa ${dano} dano${isCrit ? ' CRÍTICO!' : ''} e Sangramento.`, 'crit');
-  }, 150);
-  agendarSave();
-}
-
 function turnoInimigo(){
   if (state.enemy.hp <= 0) return;
   lunge(el.enemyFrame, 'left');
@@ -361,26 +333,39 @@ function turnoInimigo(){
 function finalizarTurno(){
   render();
   if (state.enemy.hp <= 0) { venceuOnda(); return; }
-  state.turnLocked = true; render();
 
   setTimeout(() => {
-    if (state.enemy.statusEffects.bleed) { state.enemy.hp -= state.enemy.statusEffects.bleed.dmg; state.enemy.statusEffects.bleed.turns -= 1; if(state.enemy.statusEffects.bleed.turns <= 0) delete state.enemy.statusEffects.bleed; shake(el.enemyFrame); floatingNumber(el.enemyPortrait, '-' + state.enemy.statusEffects.bleed.dmg, 'bleed'); }
+    // Aplica o sangramento no inimigo antes dele atacar
+    if (state.enemy.statusEffects.bleed) {
+      state.enemy.hp -= state.enemy.statusEffects.bleed.dmg;
+      state.enemy.statusEffects.bleed.turns -= 1;
+      if(state.enemy.statusEffects.bleed.turns <= 0) delete state.enemy.statusEffects.bleed;
+      shake(el.enemyFrame);
+      floatingNumber(el.enemyPortrait, '-' + state.enemy.statusEffects.bleed.dmg, 'bleed');
+    }
+    
     render();
     if (state.enemy.hp <= 0){ setTimeout(venceuOnda, 400); return; }
 
     setTimeout(() => {
       turnoInimigo();
+      
       setTimeout(() => {
+        // Efeitos de status no jogador
         if(state.player.statusEffects.bleed){ state.player.hp -= state.player.statusEffects.bleed.dmg; state.player.statusEffects.bleed.turns -= 1; if(state.player.statusEffects.bleed.turns<=0) delete state.player.statusEffects.bleed; shake(el.playerFrame); floatingNumber(el.playerPortrait, '-' + state.player.statusEffects.bleed.dmg, 'bleed'); }
         if(state.player.statusEffects.atkDown){ state.player.statusEffects.atkDown.turnsLeft -=1; if(state.player.statusEffects.atkDown.turnsLeft<=0){ state.player.tempAtkMod += state.player.statusEffects.atkDown.amount; delete state.player.statusEffects.atkDown; } }
+        
         state.player.defending = false;
         if (state.enemy.abilityCooldown > 0) state.enemy.abilityCooldown -= 1;
         if (state.specialCooldown > 0) state.specialCooldown -= 1;
-        state.turnLocked = false; render();
+        
+        state.turnLocked = false; 
+        render();
         if (state.player.hp <= 0) matarEntidade(el.playerFrame, false);
       }, 300);
+      
     }, 500);
-  }, 400);
+  }, 200);
 }
 
 function matarEntidade(frameTarget, isEnemyVictory) {
@@ -493,11 +478,55 @@ function fimDeJogo(venceu){
   else { el.endEyebrow.textContent = 'Fim de Combate'; el.endTitle.textContent = 'Derrota'; el.endMessage.textContent = `Você caiu na onda ${state.wave}.`; }
 }
 
-// Botoes de Combate
-el.btnAttack.onclick = () => { if (!state.turnLocked) { playerAttack(); finalizarTurno(); } };
-el.btnDefend.onclick = () => { if (!state.turnLocked) { state.player.defending = true; logMsg('Você levanta guarda.', 'system'); finalizarTurno(); } };
-el.btnSpecial.onclick = () => { if (!state.turnLocked && state.specialCooldown <= 0) { playerSpecial(); state.specialCooldown = state.specialMaxCooldown; finalizarTurno(); } };
-el.btnPotion.onclick = () => { if (!state.turnLocked && state.player.potions > 0) { state.player.potions -= 1; const c = 30; state.player.hp = Math.min(state.player.maxHp, state.player.hp + c); playSfx('heal'); floatingNumber(el.playerPortrait, '+' + c, 'heal'); logMsg('Bebeu uma poção.', 'heal'); agendarSave(); finalizarTurno(); } };
+// Botoes de Combate Refatorados (Sequência blindada)
+el.btnAttack.onclick = () => {
+  if (state.turnLocked) return;
+  state.turnLocked = true; render(); 
+  
+  lunge(el.playerFrame, 'right');
+  const { dano, isCrit } = calcularDano(statAtk(state.player), state.enemy.def, { critChance: statCrit(state.player) });
+  logMsg(`Ataque causa ${dano} de dano.${isCrit ? ' CRÍTICO!' : ''}`, isCrit ? 'crit' : 'hit-enemy');
+  agendarSave();
+  
+  setTimeout(() => {
+    aplicarDanoNoInimigo(dano, isCrit);
+    finalizarTurno();
+  }, 150);
+};
+
+el.btnSpecial.onclick = () => {
+  if (state.turnLocked || state.specialCooldown > 0) return;
+  state.turnLocked = true; state.specialCooldown = state.specialMaxCooldown; render();
+  
+  lunge(el.playerFrame, 'right');
+  const { dano, isCrit } = calcularDano(statAtk(state.player), state.enemy.def, { critChance: statCrit(state.player), mult: 1.5 });
+  logMsg(`Corte Profundo causa ${dano} dano${isCrit ? ' CRÍTICO!' : ''} e Sangramento.`, 'crit');
+  agendarSave();
+  
+  setTimeout(() => {
+    aplicarDanoNoInimigo(dano, isCrit);
+    state.enemy.statusEffects.bleed = { turns: 3, dmg: Math.max(2, Math.round(statAtk(state.player) * 0.22)) };
+    finalizarTurno();
+  }, 150);
+};
+
+el.btnDefend.onclick = () => {
+  if (state.turnLocked) return;
+  state.turnLocked = true; state.player.defending = true;
+  logMsg('Você levanta guarda.', 'system');
+  render();
+  finalizarTurno();
+};
+
+el.btnPotion.onclick = () => {
+  if (state.turnLocked || state.player.potions <= 0) return;
+  state.turnLocked = true; state.player.potions -= 1;
+  const c = 30; state.player.hp = Math.min(state.player.maxHp, state.player.hp + c); 
+  playSfx('heal'); floatingNumber(el.playerPortrait, '+' + c, 'heal'); 
+  logMsg('Bebeu uma poção.', 'heal'); agendarSave();
+  render();
+  finalizarTurno();
+};
 
 el.btnRestart.onclick = () => {
   el.overlay.classList.remove('show');
